@@ -15,11 +15,24 @@ const pageBinding = new DesktopPageBinding();
 let loading = false;
 let queued = false;
 let stopped = false;
+let accountLoading = false;
+
+async function refreshAccount() {
+  if (stopped || accountLoading) return;
+  accountLoading = true;
+  const previous = accountReader.cached;
+  try {
+    const result = await accountReader.read();
+    if (!stopped && !values.once && result !== previous) void refresh();
+  } catch { /* Context reads continue while the account endpoint is unavailable. */ }
+  finally { accountLoading = false; }
+}
 
 async function refresh() {
   if (stopped) return;
   if (loading) { queued = true; return; }
   loading = true;
+  if (!values.once) void refreshAccount();
   try {
     const generation = pageBinding.generation;
     const selectedThreadId = pageBinding.windowCount === 1 && !monitor.router.hasRemoteFollowing
@@ -34,14 +47,11 @@ async function refresh() {
       catch (error) { bindingError = error.message; }
     }
     let snapshot;
-    if (threadId) snapshot = await getUsageSnapshot(threadId, sessionReader, accountReader);
+    if (threadId) snapshot = await getUsageSnapshot(threadId, sessionReader, accountReader, { cachedAccountOnly:true });
     else {
-      let quota = normalizeQuota(null);
-      try {
-        const { result } = await accountReader.read();
-        quota = normalizeQuota(result.rateLimitsByLimitId?.codex ?? result.rateLimits);
-      } catch { }
-      snapshot = { threadId:null, context:null, quota, quotaSource:'account',
+      const result = accountReader.cached?.result;
+      const quota = normalizeQuota(result?.rateLimitsByLimitId?.codex ?? result?.rateLimits);
+      snapshot = { threadId:null, context:null, contextStatus:'unbound', quota, quotaSource:'account',
         status:'unbound', warnings:[bindingError || 'Current conversation is not confirmed; context usage is unknown.'] };
     }
     if (!pageBinding.isCurrent(generation)
@@ -75,11 +85,11 @@ async function refresh() {
   }
 }
 
-if (values.once) { await refresh(); accountReader.close(); }
+if (values.once) { await refreshAccount(); await refresh(); accountReader.close(); }
 else {
   monitor.on('change', () => { void refresh(); });
   monitor.start();
-  const timer = setInterval(() => { void refresh(); }, 5000);
+  const timer = setInterval(() => { void refresh(); }, 1000);
   const lines = createInterface({ input:process.stdin });
   lines.on('line', line => {
     try {
@@ -88,7 +98,7 @@ else {
         if (pageBinding.update(request)) {
           const quota = normalizeQuota(accountReader.cached?.result?.rateLimitsByLimitId?.codex
             ?? accountReader.cached?.result?.rateLimits);
-          process.stdout.write(JSON.stringify({ threadId:null, selectedThreadId:null, context:null, quota,
+          process.stdout.write(JSON.stringify({ threadId:null, selectedThreadId:null, context:null, contextStatus:'unbound', quota,
             quotaSource:'account', status:'unbound', bindingSource:'unknown', pageRevision:pageBinding.pageRevision,
             warnings:['Current page changed; context usage is unknown until its conversation is confirmed.'] }) + '\n');
         }

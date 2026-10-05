@@ -20,10 +20,12 @@ namespace UsageRings {
   [DllImport("user32.dll")] private static extern bool PrintWindow(IntPtr window, IntPtr context, uint flags);
   internal static double LastScore;
   internal static int MinimumGray=255, MaximumGray=0;
-  internal static ButtonAnchor FindButton(IntPtr window) {
+  internal static ButtonAnchor FindButton(IntPtr window, ButtonAnchor composer) {
+   if(composer==null||composer.Window!=window||composer.ModelBounds.IsEmpty) return null;
    NativeAnchor.NativeRectangle nativeBounds;
    if (!NativeAnchor.GetWindowRect(window, out nativeBounds) || NativeAnchor.IsIconic(window)) return null;
    var bounds=nativeBounds.ToRectangle();
+   if(bounds!=composer.WindowBounds) return null;
    if(bounds.Width<200 || bounds.Height<200) return null;
    using(var bitmap=new Bitmap(bounds.Width, bounds.Height, PixelFormat.Format32bppArgb)) {
     using(var graphics=Graphics.FromImage(bitmap)) {
@@ -34,19 +36,32 @@ namespace UsageRings {
     uint dpi=96;
     try { dpi=NativeAnchor.GetDpiForWindow(window); } catch { }
     var scale=Math.Max(1,dpi/96.0);
-    var match=Locate(bitmap, Math.Max(0, bitmap.Height*55/100), scale);
+    var search=composer.ButtonBounds;
+    search.Offset(-bounds.Left,-bounds.Top);
+    var match=LocateComposer(bitmap,search,scale);
     if(match.IsEmpty && NativeAnchor.GetForegroundWindow()==window) {
      using(var graphics=Graphics.FromImage(bitmap)) {
       int sourceX=Math.Max(0,bounds.Left),sourceY=Math.Max(0,bounds.Top);
       graphics.CopyFromScreen(sourceX,sourceY,sourceX-bounds.Left,sourceY-bounds.Top,
        new Size(bounds.Right-sourceX,bounds.Bottom-sourceY),CopyPixelOperation.SourceCopy);
      }
-     match=Locate(bitmap,Math.Max(0,bitmap.Height*55/100),scale);
+     match=LocateComposer(bitmap,search,scale);
     }
     if(match.IsEmpty) return null;
     match.Offset(bounds.Left,bounds.Top);
     return new ButtonAnchor { Window=window, WindowBounds=bounds, ButtonBounds=match,
-     ButtonName="microphone (verified icon)", Scale=scale };
+     ButtonName="microphone (verified icon)", Scale=scale,
+     ModelBounds=composer.ModelBounds, ToolbarBounds=composer.ToolbarBounds };
+   }
+  }
+
+  internal static Rectangle LocateComposer(Bitmap image, Rectangle search, double scale) {
+   search=Rectangle.Intersect(search,new Rectangle(Point.Empty,image.Size));
+   if(search.Width<12||search.Height<16) return Rectangle.Empty;
+   using(var cropped=image.Clone(search,PixelFormat.Format32bppArgb)) {
+    var match=Locate(cropped,0,scale);
+    if(!match.IsEmpty) match.Offset(search.Left,search.Top);
+    return match;
    }
   }
 

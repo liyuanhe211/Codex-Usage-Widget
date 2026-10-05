@@ -288,12 +288,15 @@ export class AccountRateReader {
   }
 }
 
-export async function getUsageSnapshot(threadId, sessionReader, accountReader) {
+export async function getUsageSnapshot(threadId, sessionReader, accountReader, { cachedAccountOnly = false } = {}) {
   if (!threadId) {
     return { threadId: null, context: null, quota: normalizeQuota(null), status: 'unbound', warnings: [] };
   }
   if (!THREAD_ID_PATTERN.test(threadId)) throw new Error('Invalid conversation ID format.');
-  const results = await Promise.allSettled([sessionReader.read(threadId), accountReader.read()]);
+  const accountResult = cachedAccountOnly
+    ? accountReader.cached ? Promise.resolve(accountReader.cached) : Promise.reject(new Error('Account limits have not been reported yet.'))
+    : accountReader.read();
+  const results = await Promise.allSettled([sessionReader.read(threadId), accountResult]);
   const session = results[0].status === 'fulfilled' ? results[0].value : null;
   const warnings = [];
   if (!session) warnings.push(results[0].reason.message);

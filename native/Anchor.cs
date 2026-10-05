@@ -101,6 +101,12 @@ namespace UsageRings {
         }
 
         internal static ButtonAnchor FindButton(IntPtr window, List<string> diagnostics) {
+            ButtonAnchor composer;
+            return FindButton(window, diagnostics, out composer);
+        }
+
+        internal static ButtonAnchor FindButton(IntPtr window, List<string> diagnostics, out ButtonAnchor composer) {
+            composer = null;
             NativeRectangle nativeBounds;
             if (!GetWindowRect(window, out nativeBounds) || IsIconic(window)) return null;
             var windowBounds = nativeBounds.ToRectangle();
@@ -147,6 +153,12 @@ namespace UsageRings {
                     } catch (ElementNotAvailableException) { }
                 }
             }
+            NativeRectangle finalBounds;
+            if (!GetWindowRect(window, out finalBounds) || finalBounds.ToRectangle() != windowBounds) return null;
+            uint windowDpi = 96;
+            try { windowDpi = GetDpiForWindow(window); } catch { }
+            double displayScale = Math.Max(1, windowDpi / 96.0);
+            composer = FindComposer(window, windowBounds, modelButtons, attachmentButtons, displayScale);
             if (result == null) return null;
             var microphoneBounds = result.ButtonBounds;
             int closestRight = Int32.MinValue;
@@ -168,6 +180,37 @@ namespace UsageRings {
             return result;
         }
 
+        internal static ButtonAnchor FindComposer(IntPtr window, Rectangle windowBounds,
+            List<Rectangle> models, List<Rectangle> attachments, double scale) {
+            ButtonAnchor composer = null;
+            foreach (var model in models) {
+                if (model.Width < 80 * scale) continue;
+                foreach (var attachment in attachments) {
+                    if (attachment.Right >= model.Left || Math.Abs(attachment.Top + attachment.Height / 2
+                        - model.Top - model.Height / 2) > model.Height / 2) continue;
+                    if (composer != null && composer.ModelBounds.Bottom >= model.Bottom) continue;
+                    int padding = (int)Math.Round(4 * scale);
+                    var search = Rectangle.Intersect(windowBounds, Rectangle.FromLTRB(model.Right - padding,
+                        model.Top - padding, model.Right + (int)Math.Round(120 * scale), model.Bottom + padding));
+                    composer = new ButtonAnchor { Window = window, WindowBounds = windowBounds,
+                        ButtonBounds = search, ModelBounds = model,
+                        ToolbarBounds = Rectangle.FromLTRB(attachment.Left, model.Top, search.Right, model.Bottom),
+                        Scale = scale };
+                }
+            }
+            return composer;
+        }
+
+        internal static ButtonAnchor NormalizeButton(ButtonAnchor anchor) {
+            var button = anchor.ButtonBounds;
+            int size = (int)Math.Round(32 * anchor.Scale);
+            return new ButtonAnchor { Window = anchor.Window, WindowBounds = anchor.WindowBounds,
+                ButtonBounds = new Rectangle(button.Left + button.Width / 2 - size / 2,
+                    button.Top + button.Height / 2 - size / 2, size, size),
+                ModelBounds = anchor.ModelBounds, ToolbarBounds = anchor.ToolbarBounds,
+                ButtonName = anchor.ButtonName, Scale = anchor.Scale };
+        }
+
         internal static ButtonAnchor ForPlacement(ButtonAnchor anchor, bool besideModel) {
             var bounds = anchor.ButtonBounds;
             if (besideModel && !anchor.ModelBounds.IsEmpty) {
@@ -186,5 +229,39 @@ namespace UsageRings {
             return NativeTheme.ReadBackground(anchor, previous);
         }
 
+    }
+
+    internal sealed class AnchorTracker {
+        private ButtonAnchor accepted, pending;
+
+        private static bool SamePosition(ButtonAnchor first, ButtonAnchor second) {
+            return first != null && second != null && first.Window == second.Window
+                && first.WindowBounds.Size == second.WindowBounds.Size && first.Scale == second.Scale
+                && Math.Abs(first.ButtonBounds.Left - first.WindowBounds.Left
+                    - second.ButtonBounds.Left + second.WindowBounds.Left) <= 2
+                && Math.Abs(first.ButtonBounds.Top - first.WindowBounds.Top
+                    - second.ButtonBounds.Top + second.WindowBounds.Top) <= 2;
+        }
+
+        internal ButtonAnchor Update(ButtonAnchor next) {
+            if (next == null) { pending = null; return null; }
+            next = NativeAnchor.NormalizeButton(next);
+            if (SamePosition(accepted, next)) {
+                var button = accepted.ButtonBounds;
+                button.Offset(next.WindowBounds.Left - accepted.WindowBounds.Left,
+                    next.WindowBounds.Top - accepted.WindowBounds.Top);
+                next.ButtonBounds = button;
+                accepted = next; pending = null;
+                return next;
+            }
+            bool directButton = NativeAnchor.IsMicrophoneName(next.ButtonName)
+                && next.ButtonName != "microphone (verified icon)";
+            if ((accepted == null && directButton) || SamePosition(pending, next)) {
+                accepted = next; pending = null;
+                return next;
+            }
+            pending = next;
+            return null;
+        }
     }
 }

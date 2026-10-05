@@ -166,6 +166,17 @@ namespace UsageRings {
    var balance=Values.NumberAt(snapshot,"credits","balance");
    return "Credits remaining: "+(balance.HasValue?balance.Value.ToString("#,0.##",CultureInfo.InvariantCulture):"—");
   }
+  internal static string ContextDescription(object snapshot) {
+   var context=Values.At(snapshot,"context");
+   if(context!=null) return Values.Tokens(Values.NumberAt(context,"usedTokens"))+" / "+
+    Values.Tokens(Values.NumberAt(context,"capacityTokens"))+" ("+Values.Percent(Values.NumberAt(context,"percent"))+")";
+   switch(Values.Text(Values.At(snapshot,"contextStatus"))) {
+    case "not-yet-reported": return "Waiting for first usage";
+    case "compacted": return "Waiting for usage update";
+    case "unbound": return "Conversation not confirmed";
+    default: return "Unavailable";
+   }
+  }
   internal void DrawContents(Graphics graphics,Rectangle bounds) {
    int rowOffset=LogicalHeight-StandardHeight;
    bool dark=ComposerBackground.GetBrightness()<0.5;
@@ -195,8 +206,7 @@ namespace UsageRings {
     var contextPercent=Values.NumberAt(context,"percent");
     var contextColor=Values.ColorAt(Snapshot,"contextColor",Color.FromArgb(71,151,237));
     TextAt(graphics,"Context window",body,secondary,16,15,140,false);
-    string contextText=context==null?"Unavailable":Values.Tokens(Values.NumberAt(context,"usedTokens"))+" / "+
-      Values.Tokens(Values.NumberAt(context,"capacityTokens"))+" ("+Values.Percent(contextPercent)+")";
+    string contextText=ContextDescription(Snapshot);
     TextAt(graphics,contextText,body,secondary,120,15,LogicalWidth-136,true);
     DrawBar(graphics,16,43,ContentWidth,contextPercent,contextColor,track);
     using(var line=new Pen(track)) graphics.DrawLine(line,16,62,LogicalWidth-16,62);
@@ -237,6 +247,7 @@ namespace UsageRings {
   private readonly NotifyIcon tray=new NotifyIcon();
   private readonly ManualResetEvent stopped=new ManualResetEvent(false);
   private readonly object anchorGate=new object();
+  private readonly AnchorTracker anchorTracker=new AnchorTracker();
   private readonly string root;
   private readonly string statusPath;
   private readonly WidgetPreferences preferences;
@@ -327,12 +338,14 @@ namespace UsageRings {
      }
      ButtonAnchor next=null;
      if(target!=IntPtr.Zero&&!NativeAnchor.IsIconic(target)) {
-      try { next=NativeAnchor.FindButton(target,null); } catch { }
-      if(next==null) next=NativeVision.FindButton(target);
+      ButtonAnchor composer=null;
+      try { next=NativeAnchor.FindButton(target,null,out composer); } catch { }
+      if(next==null) next=NativeVision.FindButton(target,composer);
      }
+     next=anchorTracker.Update(next);
      lock(anchorGate) { verifiedAnchor=next; verifiedPageTitle=pageTitle; }
      trackingFailures=next==null?trackingFailures+1:0;
-    } catch { lock(anchorGate) { verifiedAnchor=null; } trackingFailures++; }
+    } catch { anchorTracker.Update(null); lock(anchorGate) { verifiedAnchor=null; } trackingFailures++; }
     if(stopped.WaitOne(1200)) return;
    }
   }
