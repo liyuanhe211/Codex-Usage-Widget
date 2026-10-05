@@ -1,7 +1,7 @@
 {
   "name": "codex-usage-rings",
   "version": "0.4.7",
-  "description": "Native usage rings over the Codex microphone button. Click for context and account usage details.",
+  "description": "Unofficial native usage rings in the ChatGPT desktop app composer. Click for context and account usage details.",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Usage Rings",

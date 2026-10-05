@@ -1,4 +1,4 @@
 {
-  "description": "用量组件的对话启动 hook 已停用。",
+  "description": "The usage widget's session start hook is disabled.",
   "hooks": {}
 }

@@ -1,10 +1,10 @@
 ---
 name: usage
-description: 在 Windows Codex 的麦克风位置显示原生用量圆圈，点击查看本对话 context 和账号小时、周额度。适用于“查看用量”“显示额度”“打开用量圆圈”等请求。
+description: Shows native usage rings in the composer of the ChatGPT desktop app on Windows. Click them for the current conversation's context and the account's short-term and weekly limits. Use for requests such as "show usage", "show my limits", or "open the usage rings".
 ---
 
-在前台 exec_command 中运行 node 加上本技能目录内 scripts/open.mjs 的绝对路径。当前运行时提供准确主对话 ID 时可传入 --thread-id；脚本会启动可见的原生 GUI，结束启动命令后 GUI 继续运行。已有组件不会重复启动。不要安装 SessionStart hook。
+Run node with the absolute path of scripts/open.mjs in this skill's directory, in a foreground exec_command. When the runtime provides the exact main conversation ID, pass it with --thread-id. The script starts the visible native GUI, which keeps running after the launch command ends. An already running widget is not started twice. Do not install a SessionStart hook.
 
-组件通过 Codex 本地 IPC 跟随选中的对话，在输入框麦克风位置显示双圆圈，点击展开详情，右键菜单可以退出。无法确认对话或麦克风位置时保留未知状态；不要根据最新日志猜测对话，也不要把“进程已启动”表述成“圆圈已经可见”。
+The widget follows the selected conversation through the desktop app's local IPC, draws the two rings in the composer beside the model selector or over the microphone button, opens details on click, and quits from its right-click menu. When the conversation or the button position cannot be confirmed, it keeps the unknown state. Do not guess the conversation from the newest log, and do not report "the process started" as "the rings are visible".
 
-默认使用原生 GUI。只有用户明确需要网页或 MCP Apps 面板时才调用 open_usage_rings 并打开它返回的 browserUrl。
+Use the native GUI by default. Call open_usage_rings and open the browserUrl it returns only when the user explicitly asks for a web page or MCP Apps panel.

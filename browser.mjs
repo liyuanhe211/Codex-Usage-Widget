@@ -2,13 +2,13 @@ import { createServer } from 'node:http';
 import { THREAD_ID_PATTERN } from './usage.mjs';
 
 export function createBrowserViews(html, snapshot, { port = 0 } = {}) {
-  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error("浏览器端口格式不正确。");
+  if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('The browser port is invalid.');
   const boundThreadIds = new Set();
   let server;
   let listening;
 
   async function open(threadId) {
-    if (!THREAD_ID_PATTERN.test(threadId ?? '')) throw new Error('浏览器面板需要明确的对话 ID。');
+    if (!THREAD_ID_PATTERN.test(threadId ?? '')) throw new Error('The browser view requires an explicit conversation ID.');
     boundThreadIds.add(threadId);
     if (!server) {
       server = createServer(async (request, response) => {

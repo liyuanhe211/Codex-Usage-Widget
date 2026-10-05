@@ -9,7 +9,7 @@ export const nativeExecutable = join(nativeRoot, 'build', 'CodexUsageRings.exe')
 export const autostartExecutable = join(nativeRoot, 'build', 'CodexUsageRingsAutostart.exe');
 
 export async function buildNative({ outputPath = nativeExecutable } = {}) {
-  if (process.platform !== 'win32') throw new Error('此原生组件当前支持 Windows。');
+  if (process.platform !== 'win32') throw new Error('The native widget currently supports Windows only.');
   const framework = join(process.env.WINDIR || process.env.SystemRoot, 'Microsoft.NET', 'Framework64', 'v4.0.30319');
   const compiler = join(framework, 'csc.exe');
   await access(compiler);
@@ -29,7 +29,7 @@ export async function buildNative({ outputPath = nativeExecutable } = {}) {
 }
 
 export async function buildAutostart() {
-  if (process.platform !== 'win32') throw new Error('此自动启动器当前支持 Windows。');
+  if (process.platform !== 'win32') throw new Error('The autostart supervisor currently supports Windows only.');
   const framework = join(process.env.WINDIR || process.env.SystemRoot, 'Microsoft.NET', 'Framework64', 'v4.0.30319');
   await mkdir(join(nativeRoot, 'build'), { recursive:true });
   await promisify(execFile)(join(framework, 'csc.exe'), [
@@ -40,6 +40,6 @@ export async function buildAutostart() {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  try { console.log('已构建：' + await (process.argv.includes('--autostart') ? buildAutostart() : buildNative())); }
+  try { console.log('Built: ' + await (process.argv.includes('--autostart') ? buildAutostart() : buildNative())); }
   catch (error) { console.error(error.stdout || error.message); process.exitCode = 1; }
 }

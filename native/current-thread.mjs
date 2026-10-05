@@ -22,7 +22,7 @@ export class FrameDecoder {
     this.buffer = Buffer.concat([this.buffer, chunk]);
     while (this.buffer.length >= 4) {
       const length = this.buffer.readUInt32LE(0);
-      if (!length || length > 256 * 1024 * 1024) throw new Error('对话识别消息长度无效。');
+      if (!length || length > 256 * 1024 * 1024) throw new Error('The conversation identification message has an invalid length.');
       if (length > 2 * 1024 * 1024) {
         const available = Math.min(length, this.buffer.length - 4);
         this.discard = length - available;
@@ -34,7 +34,7 @@ export class FrameDecoder {
       const body = this.buffer.subarray(4, 4 + length).toString('utf8');
       this.buffer = this.buffer.subarray(4 + length);
       if (!body.includes('thread-stream-following-changed') && !body.includes('client-status-changed')) continue;
-      try { this.onMessage(JSON.parse(body)); } catch { /* 丢弃不完整或不适用的消息。 */ }
+      try { this.onMessage(JSON.parse(body)); } catch { /* Discard incomplete or unrelated messages. */ }
     }
   }
 }

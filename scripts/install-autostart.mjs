@@ -62,7 +62,7 @@ async function removeOldAdapter(codexHome, projectRoot) {
 }
 
 export async function installAutostart({ remove = false } = {}) {
-  if (process.platform !== 'win32') throw new Error('自动启动器当前支持 Windows。');
+  if (process.platform !== 'win32') throw new Error('The autostart supervisor currently supports Windows only.');
   const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
   const codexHome = process.env.CODEX_HOME || join(homedir(), '.codex');
   const startupDirectory = join(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'Startup');
@@ -104,7 +104,7 @@ export async function installAutostart({ remove = false } = {}) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const result = await installAutostart({ remove:process.argv.includes('--remove') });
-    console.log(result.enabled ? '已安装静默自动启动器；登录 Windows 后跟随桌面应用启动，并恢复已退出的用量组件。' : '已移除自动启动项并停止启动器；当前用量组件保持运行。');
+    console.log(result.enabled ? 'Installed the silent autostart supervisor. After Windows sign-in it starts the widget with the desktop app and restores it if it exits.' : 'Removed autostart and stopped the supervisor. The current widget keeps running.');
   } catch (error) {
     console.error(error.stderr || error.message);
     process.exitCode = 1;
