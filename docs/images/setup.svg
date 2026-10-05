@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="180" viewBox="0 0 1200 180" role="img" aria-label="Install desktop and sign in, copy project, run Setup.cmd, and use the rings">
+<rect width="1200" height="180" rx="18" fill="#f5f7fa"/>
+<g font-family="Segoe UI,Arial,sans-serif">
+<g fill="white" stroke="#d7dce4"><rect x="24" y="22" width="270" height="136" rx="14"/><rect x="318" y="22" width="270" height="136" rx="14"/><rect x="612" y="22" width="270" height="136" rx="14"/><rect x="906" y="22" width="270" height="136" rx="14"/></g>
+<g fill="#4797ed"><circle cx="53" cy="52" r="17"/><circle cx="347" cy="52" r="17"/><circle cx="641" cy="52" r="17"/><circle cx="935" cy="52" r="17"/></g>
+<g fill="white" font-size="17" text-anchor="middle"><text x="53" y="58">1</text><text x="347" y="58">2</text><text x="641" y="58">3</text><text x="935" y="58">4</text></g>
+<g fill="#222" font-size="20" font-weight="600"><text x="80" y="59">Desktop app</text><text x="374" y="59">Copy the project</text><text x="668" y="59">Run Setup.cmd</text><text x="962" y="59">Use the rings</text></g>
+<g fill="#5c6573" font-size="16"><text x="42" y="96">Install on Windows x64</text><text x="42" y="124">Sign in with your account</text><text x="336" y="96">Keep the complete source</text><text x="336" y="124">Choose a permanent folder</text><text x="630" y="96">Dependencies + native build</text><text x="630" y="124">Silent autostart enabled</text><text x="924" y="96">Open a local conversation</text><text x="924" y="124">Click for usage details</text></g></g></svg>
