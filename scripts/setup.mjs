@@ -72,7 +72,7 @@ async function detectDesktop() {
     windowsHide:true, encoding:'utf8',
   });
   const locations = JSON.parse(stdout.replace(/^\uFEFF/, '').trim() || '[]');
-  if (!locations.length) throw new Error('Install ChatGPT/Codex Desktop for Windows and sign in, then run Setup.cmd again.');
+  if (!locations.length) throw new Error('Install the ChatGPT desktop app for Windows and sign in, then run Setup.cmd again.');
   return locations;
 }
 
@@ -148,7 +148,9 @@ export async function setup({ check = false } = {}) {
     await writeFile(join(projectRoot, 'native', 'Local_Deployment_Private.json'), JSON.stringify(metadata, null, 2) + '\n', 'utf8');
     console.log('Building and checking the widget...');
     await run(process.execPath, ['build.mjs']);
-    await run(process.execPath, ['--test', 'tests/*.test.mjs']);
+    if (await access(join(projectRoot, 'tests')).then(() => true, () => false)) {
+      await run(process.execPath, ['--test', 'tests/*.test.mjs']);
+    }
     const stagedExecutable = join(projectRoot, 'native', 'build', 'CodexUsageRings.Setup.exe');
     await buildNative({ outputPath:stagedExecutable });
     await access(autostartExecutable).catch(async error => {
