@@ -1,8 +1,8 @@
-# Usage Rings for ChatGPT Desktop
+# Codex Usage Widget
 
 An unofficial Windows widget for the Codex coding mode of the ChatGPT desktop app. Two small rings in the composer show how much context the selected conversation uses and how much of your account's usage limits is spent.
 
-Usage Rings is an independent project. It is not affiliated with, endorsed by, or sponsored by OpenAI. ChatGPT and Codex are trademarks of OpenAI.
+Codex Usage Widget is an independent project. It is not affiliated with, endorsed by, or sponsored by OpenAI. ChatGPT and Codex are trademarks of OpenAI.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Install the ChatGPT desktop app on Windows x64 and sign in. Put the complete pro
 You can also open the project folder in Codex and paste these instructions:
 
 ```markdown
-Install the Usage Rings widget from the current project.
+Install the Codex Usage Widget from the current project.
 
 1. Confirm that the current folder contains the complete project, including Setup.ps1, package.json, native, scripts, and public. Check for Windows x64, a signed-in ChatGPT desktop app, and the required runtime. Keep any existing widget position settings.
 2. In the project folder, run powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File .\Setup.ps1. Allow setup to download the official runtime and dependencies, build the native widget, and enable autostart. Do not skip any verification step.
