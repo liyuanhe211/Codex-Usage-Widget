@@ -1,0 +1,22 @@
+{
+  "name": "codex-usage-rings",
+  "version": "0.4.7",
+  "description": "Native usage rings over the Codex microphone button. Click for context and account usage details.",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Usage Rings",
+    "shortDescription": "View conversation context and account usage",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Interactive"
+    ],
+    "brandColor": "#4797ed",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "defaultPrompt": [
+      "Use $usage to show native Usage Rings over the microphone button."
+    ]
+  },
+  "skills": "./skills/"
+}

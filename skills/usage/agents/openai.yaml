@@ -1,0 +1,11 @@
+interface:
+  display_name: "View Usage"
+  short_description: "Native context and account usage rings in Codex"
+  default_prompt: "Use $usage to show native Usage Rings and conversation details."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "usage-rings"
+      description: "读取当前对话 context 与账号额度，并提供用量组件"
+policy:
+  allow_implicit_invocation: true

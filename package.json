@@ -1,0 +1,29 @@
+{
+  "name": "codex-usage-rings",
+  "version": "0.4.7",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "view": "node server.mjs --preview",
+    "native": "node native/start.mjs",
+    "native:build": "node native/build.mjs",
+    "autostart:install": "node scripts/install-autostart.mjs",
+    "autostart:remove": "node scripts/install-autostart.mjs --remove",
+    "setup": "node scripts/setup.mjs",
+    "setup:check": "node scripts/setup.mjs --check"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^2.0.3",
+    "@modelcontextprotocol/sdk": "^1.32.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "playwright": "^1.63.0"
+  }
+}

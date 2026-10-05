@@ -1,0 +1,11 @@
+{
+  "name": "usage-rings-local",
+  "plugins": [
+    {
+      "name": "codex-usage-rings",
+      "source": { "source": "local", "path": "./" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Productivity"
+    }
+  ]
+}
