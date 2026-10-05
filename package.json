@@ -1,6 +1,9 @@
 {
   "name": "codex-usage-rings",
   "version": "0.4.7",
+  "description": "Unofficial native usage rings for the ChatGPT desktop app on Windows",
+  "author": "Yuanhe Li",
+  "license": "CC-BY-NC-4.0",
   "private": true,
   "type": "module",
   "engines": {
