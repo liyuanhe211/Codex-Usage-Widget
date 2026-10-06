@@ -2,7 +2,12 @@
 
 An unofficial Windows widget for the Codex coding mode of the ChatGPT desktop app. Two small rings in the composer show how much context the selected conversation uses and how much of your account's usage limits is spent.
 
-Codex Usage Widget is an independent project. It is not affiliated with, endorsed by, or sponsored by OpenAI. ChatGPT and Codex are trademarks of OpenAI.
+<img width="600" height="133" alt="{3E942B8B-6C3B-4225-AB7C-5764701E36B0}" src="https://github.com/user-attachments/assets/5c987445-1050-434c-9648-2685c2a9884b" />
+
+<img width="304" height="133" alt="{CEFFD849-9F5C-4AE0-B96F-AC0BAD3CDD53}" src="https://github.com/user-attachments/assets/84045966-af6b-4877-9373-2425f18b0eac" />
+
+
+This is not affiliated with OpenAI.
 
 ## Installation
 
